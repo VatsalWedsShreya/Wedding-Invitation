@@ -29,6 +29,35 @@ a { color: inherit; }
 .ambient-one { width: 340px; height: 340px; top: -150px; left: -150px; background: radial-gradient(circle, #e7b7c1 0 3%, transparent 4% 100%); background-size: 24px 24px; }
 .ambient-two { width: 400px; height: 400px; right: -220px; bottom: -180px; background: radial-gradient(circle, #c1cdb8 0 3%, transparent 4% 100%); background-size: 26px 26px; }
 
+/* Soft falling floral layer. It never blocks taps or form interaction. */
+.flower-rain {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 30;
+  contain: strict;
+}
+.falling-flower {
+  position: absolute;
+  top: -12vh;
+  left: var(--left);
+  color: var(--flower-colour);
+  font-family: Georgia, serif;
+  font-size: var(--size);
+  line-height: 1;
+  opacity: 0;
+  text-shadow: 0 1px 5px rgba(139, 61, 86, .10);
+  will-change: transform, opacity;
+  animation: flower-fall var(--duration) var(--delay) linear infinite;
+}
+@keyframes flower-fall {
+  0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(0deg); }
+  8% { opacity: .48; }
+  82% { opacity: .42; }
+  100% { opacity: 0; transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)); }
+}
+
 .cover {
   min-height: 100svh;
   display: grid;
@@ -229,4 +258,5 @@ a { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .flower-rain { display: none; }
 }
