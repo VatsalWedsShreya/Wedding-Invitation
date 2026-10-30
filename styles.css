@@ -29,33 +29,43 @@ a { color: inherit; }
 .ambient-one { width: 340px; height: 340px; top: -150px; left: -150px; background: radial-gradient(circle, #e7b7c1 0 3%, transparent 4% 100%); background-size: 24px 24px; }
 .ambient-two { width: 400px; height: 400px; right: -220px; bottom: -180px; background: radial-gradient(circle, #c1cdb8 0 3%, transparent 4% 100%); background-size: 26px 26px; }
 
-/* Soft falling floral layer. It never blocks taps or form interaction. */
+/* Lightweight, full-page falling flowers. This layer never blocks taps. */
 .flower-rain {
   position: fixed;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   pointer-events: none;
   z-index: 30;
-  contain: strict;
 }
 .falling-flower {
   position: absolute;
-  top: -12vh;
-  left: var(--left);
-  color: var(--flower-colour);
+  display: block;
+  top: var(--start-top, -12vh);
+  left: var(--left, 50%);
+  color: var(--flower-colour, #d99aaa);
   font-family: Georgia, serif;
-  font-size: var(--size);
+  font-size: var(--size, 18px);
   line-height: 1;
   opacity: 0;
   text-shadow: 0 1px 5px rgba(139, 61, 86, .10);
+  transform: translate3d(0, -2vh, 0);
   will-change: transform, opacity;
-  animation: flower-fall var(--duration) var(--delay) linear infinite;
+  animation-name: flower-fall;
+  animation-duration: var(--duration, 20s);
+  animation-timing-function: linear;
+  animation-delay: var(--delay, 0s);
+  animation-iteration-count: infinite;
 }
 @keyframes flower-fall {
-  0% { opacity: 0; transform: translate3d(0, -4vh, 0) rotate(0deg); }
-  8% { opacity: .48; }
-  82% { opacity: .42; }
-  100% { opacity: 0; transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)); }
+  0% { opacity: 0; transform: translate3d(0, -2vh, 0) rotate(0deg); }
+  10% { opacity: .52; }
+  78% { opacity: .42; }
+  100% { opacity: 0; transform: translate3d(var(--drift, 0px), 115vh, 0) rotate(var(--spin, 360deg)); }
 }
 
 .cover {
@@ -257,6 +267,6 @@ a { color: inherit; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
-  .flower-rain { display: none; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .falling-flower { animation: none !important; opacity: .30; transform: none; }
 }

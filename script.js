@@ -6,26 +6,33 @@ const RSVP_ENDPOINT = "https://script.google.com/macros/s/AKfycbw91Z-h71xpszBVWs
 
 const $ = (id) => document.getElementById(id);
 
-// Gentle falling flowers across the invitation. Kept lightweight and decorative.
+// Gentle falling flowers across the full viewport. They never block interaction.
 (function createFallingFlowers() {
   const layer = $("flowerRain");
-  if (!layer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (!layer) return;
 
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const symbols = ["✿", "❀", "❁", "✾", "❃"];
   const colours = ["#d99aaa", "#e7b8c2", "#c7a3ad", "#d8c7a1", "#b8c7ad"];
-  const count = window.innerWidth < 600 ? 13 : 20;
+  const count = window.innerWidth < 600 ? 12 : 18;
 
   for (let i = 0; i < count; i += 1) {
     const flower = document.createElement("span");
+    const duration = 16 + Math.random() * 12;
     flower.className = "falling-flower";
     flower.textContent = symbols[i % symbols.length];
-    flower.style.setProperty("--left", `${Math.random() * 100}vw`);
-    flower.style.setProperty("--size", `${12 + Math.random() * 13}px`);
-    flower.style.setProperty("--duration", `${13 + Math.random() * 13}s`);
-    flower.style.setProperty("--delay", `${-Math.random() * 25}s`);
-    flower.style.setProperty("--drift", `${-65 + Math.random() * 130}px`);
+    flower.style.setProperty("--left", `${Math.random() * 96}%`);
+    flower.style.setProperty("--size", `${13 + Math.random() * 13}px`);
+    flower.style.setProperty("--duration", `${duration}s`);
+    flower.style.setProperty("--delay", `${-Math.random() * duration}s`);
+    flower.style.setProperty("--drift", `${-70 + Math.random() * 140}px`);
     flower.style.setProperty("--spin", `${180 + Math.random() * 540}deg`);
     flower.style.setProperty("--flower-colour", colours[i % colours.length]);
+    if (reduceMotion) {
+      // Leave a few soft decorative flowers in place without animating them.
+      flower.style.setProperty("--start-top", `${5 + Math.random() * 88}vh`);
+      flower.style.opacity = ".30";
+    }
     layer.appendChild(flower);
   }
 })();
