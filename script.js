@@ -1,11 +1,34 @@
 /*
- * Before publishing:
- * 1. Deploy Code.gs as a Google Apps Script web app.
- * 2. Paste its /exec URL below.
+ * Vatsal & Shreya RSVP endpoint.
+ * This is the deployed Google Apps Script web-app URL supplied for this invitation.
  */
 const RSVP_ENDPOINT = "https://script.google.com/macros/s/AKfycbw91Z-h71xpszBVWseEIZdo_U8p6m6K_OrqjFlwF867eZJmlma-ggGAEtrILCux2ehgOA/exec";
 
 const $ = (id) => document.getElementById(id);
+
+// Gentle falling flowers across the invitation. Kept lightweight and decorative.
+(function createFallingFlowers() {
+  const layer = $("flowerRain");
+  if (!layer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const symbols = ["✿", "❀", "❁", "✾", "❃"];
+  const colours = ["#d99aaa", "#e7b8c2", "#c7a3ad", "#d8c7a1", "#b8c7ad"];
+  const count = window.innerWidth < 600 ? 13 : 20;
+
+  for (let i = 0; i < count; i += 1) {
+    const flower = document.createElement("span");
+    flower.className = "falling-flower";
+    flower.textContent = symbols[i % symbols.length];
+    flower.style.setProperty("--left", `${Math.random() * 100}vw`);
+    flower.style.setProperty("--size", `${12 + Math.random() * 13}px`);
+    flower.style.setProperty("--duration", `${13 + Math.random() * 13}s`);
+    flower.style.setProperty("--delay", `${-Math.random() * 25}s`);
+    flower.style.setProperty("--drift", `${-65 + Math.random() * 130}px`);
+    flower.style.setProperty("--spin", `${180 + Math.random() * 540}deg`);
+    flower.style.setProperty("--flower-colour", colours[i % colours.length]);
+    layer.appendChild(flower);
+  }
+})();
 
 // Invitation opening
 const openButton = $("openInvite");
@@ -66,8 +89,20 @@ function setStatus(message, type) {
   if (type) formStatus.classList.add(type);
 }
 
+function isGoogleAppsScriptOrigin(origin) {
+  try {
+    const host = new URL(origin).hostname.toLowerCase();
+    return host === "script.google.com" || host === "googleusercontent.com" || host.endsWith(".googleusercontent.com");
+  } catch (error) {
+    return false;
+  }
+}
+
 window.addEventListener("message", (event) => {
-  if (event.source !== frame.contentWindow) return;
+  // Apps Script may serve the response from a googleusercontent.com sandbox
+  // frame, so event.source is not always the outer iframe element itself.
+  // Trust only the two Google response domains and the exact response tokens.
+  if (!isGoogleAppsScriptOrigin(event.origin)) return;
   if (event.data === "rsvp-saved") {
     window.clearTimeout(submitTimeout);
     requestInProgress = false;
@@ -93,7 +128,6 @@ form.addEventListener("submit", (event) => {
 
   const name = $("guestName").value.trim();
   const phone = $("guestPhone").value.trim();
-  const email = $("guestEmail").value.trim();
   const attending = document.querySelector('input[name="attending"]:checked').value;
   const accepted = attending === "Yes";
   const phoneDigits = phone.replace(/\D/g, "");
@@ -102,11 +136,6 @@ form.addEventListener("submit", (event) => {
     setStatus("Please enter your name and a valid phone / WhatsApp number.", "error");
     return;
   }
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setStatus("Please check the email address or leave it blank.", "error");
-    return;
-  }
-
   const events = accepted
     ? Array.from(document.querySelectorAll('input[name="event"]:checked')).map((input) => input.value)
     : [];
@@ -114,11 +143,9 @@ form.addEventListener("submit", (event) => {
   const payload = {
     name,
     phone,
-    email,
     attending,
     guestCount: accepted ? Number($("guestCount").value) : 0,
     events,
-    song: $("songRequest").value.trim(),
     message: $("guestMessage").value.trim(),
     website: $("website").value.trim()
   };
